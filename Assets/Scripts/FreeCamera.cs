@@ -4,39 +4,25 @@ using System.Collections;
 public class FreeCamera : MonoBehaviour
 {
 
-	public float lookSpeed = 2f;
+	public float moveSpeed = 0.5f;
+	
+	public float momentumScale = 0.5f;
+	public float momentumFalloff = 50f;
 
-	public float momentumScale = 0.2f;
-	public float momentumFalloff = 10f;
-
-	private Vector2 yawPitch;
-	private Vector2 yawPitchMomentum;
-
-	void Awake()
-	{
-		yawPitch = new Vector2(transform.rotation.eulerAngles.y, transform.rotation.eulerAngles.x);
-		yawPitchMomentum = new Vector2();
-	}
+	private Vector3 momentum;
 
 	void Update()
 	{
-		float yaw = Input.GetAxis("Mouse X") * lookSpeed;
-		float pitch = -Input.GetAxis("Mouse Y") * lookSpeed;
-		//Yaw
-		yawPitch.x = Mathf.Repeat(yawPitch.x + yaw + yawPitchMomentum.x * Time.deltaTime, 360f);
+		Vector3 movement = new Vector3(Input.GetAxis("Horizontal"), Input.GetAxis("ActuallyVertical"), Input.GetAxis("Vertical")) * moveSpeed;
 
-		//Pitch
-		yawPitch.y = Mathf.Clamp(yawPitch.y + pitch + yawPitchMomentum.y * Time.deltaTime, -90f, 90f);
+        Quaternion yaw = Quaternion.Euler(0f, transform.rotation.eulerAngles.y, 0f);
+
+		transform.position += (yaw * movement + momentum) * Time.deltaTime;
 
 
-		yawPitchMomentum += new Vector2(yaw, pitch) * momentumScale;
+		momentum += (yaw * movement) * momentumScale;
 
-		yawPitchMomentum *= momentumFalloff * Time.deltaTime;
-    }
-
-	void LateUpdate()
-	{
-		transform.rotation = Quaternion.Euler(yawPitch.y, yawPitch.x, 0f);
+		momentum *= momentumFalloff * Time.deltaTime;
 	}
-
+	
 }

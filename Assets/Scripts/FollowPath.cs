@@ -67,7 +67,7 @@ public class FollowPath : MonoBehaviour
 	}
 	public void UpdateObject(float dist)
 	{
-		if(path != null)
+		if(path != null && isActiveAndEnabled)
 		{
 			transform.position = path.GetPos(dist);
 
