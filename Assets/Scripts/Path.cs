@@ -42,13 +42,27 @@ public class Path : MonoBehaviour
 			nodes[2] = endLine;
 			nodes[3] = end;
 
-			_length = start.DistTo(end); //TODO: make this actual distance along curve, somehow.
+			//_length = start.DistTo(end); //TODO: make this actual distance along curve, somehow.
+			_length = 0f;
+			const int res = 10;
+			Vector3 lastPoint = GetPosT(0f);
+			for(int i = 1; i <= res; i++)
+			{
+				Vector3 point = GetPosT((float)i / res);
+                _length += Vector3.Distance(lastPoint, point);
+				lastPoint = point;
+			}
 		}
 
 
 		public Vector3 GetPos(float dist)
 		{
 			float t = dist / _length;
+			return GetPosT(t);
+		}
+
+		private Vector3 GetPosT(float t)
+		{
 			float oneMinusT = 1f - t;
 
 			Vector3 a = nodes[0].position;
@@ -132,6 +146,10 @@ public class Path : MonoBehaviour
 
 		if(dist <= 0f)
 		{
+			if(segments.Count <= 0)
+			{
+				return Vector3.zero;
+			}
 			return transform.TransformPoint(segments[0].GetPos(0f));
 		}
 		if(dist >= totalDistance)
@@ -209,7 +227,8 @@ public class Path : MonoBehaviour
 
 	private void AssignSegments()
 	{
-		segments = new List<PathSegment>();
+		//segments = new List<PathSegment>();
+		segments.Clear();
 
 		for(int i = 1; i < nodes.Count; i += 3)
 		{

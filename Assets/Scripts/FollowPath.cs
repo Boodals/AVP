@@ -3,6 +3,13 @@ using System.Collections;
 
 public class FollowPath : MonoBehaviour
 {
+	public enum RepeatMode
+	{
+		None,
+		Repeat,
+		PingPong,
+	}
+
 	public Path path;
 
 	public bool lockRotation = false;
@@ -12,27 +19,62 @@ public class FollowPath : MonoBehaviour
 
 	public float distOnPath = 0f;
 
+	public RepeatMode repeatMode = RepeatMode.None;
+
+	private bool pingPongDirInv = false;
+
+
 	void OnValidate()
 	{
 		UpdateObject();
 
-		distOnPath = Mathf.Clamp(distOnPath, 0f, path.length);
+		if(path != null)
+		{
+			distOnPath = Mathf.Clamp(distOnPath, 0f, path.length);
+		}
 	}
 
 	void LateUpdate()
 	{
-		UpdateObject();
-
-		distOnPath = Mathf.Clamp(distOnPath + speed * Time.deltaTime, 0f, path.length);
+		distOnPath += speed * Time.deltaTime;
+		switch(repeatMode)
+		{
+			case RepeatMode.None:
+				distOnPath = Mathf.Clamp(distOnPath, 0f, path.length);
+				UpdateObject();
+				break;
+			case RepeatMode.Repeat:
+				distOnPath = Mathf.Repeat(distOnPath, path.length);
+				UpdateObject();
+				break;
+			case RepeatMode.PingPong:
+				if(!pingPongDirInv)
+				{
+					distOnPath = Mathf.Repeat(distOnPath, path.length * 2f);
+					UpdateObject(Mathf.PingPong(distOnPath, path.length));
+				}
+				else
+				{
+					distOnPath = path.length - Mathf.Clamp(path.length - distOnPath, 0f, path.length);
+				}
+				break;
+		}
 	}
 
 	public void UpdateObject()
 	{
-		transform.position = path.GetPos(distOnPath);
-
-		if(lockRotation)
+		UpdateObject(distOnPath);
+	}
+	public void UpdateObject(float dist)
+	{
+		if(path != null)
 		{
-			transform.rotation = Quaternion.LookRotation(path.GetNormal(distOnPath));
+			transform.position = path.GetPos(dist);
+
+			if(lockRotation)
+			{
+				transform.rotation = Quaternion.LookRotation(path.GetNormal(distOnPath));
+			}
 		}
 	}
 }

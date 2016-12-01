@@ -1,11 +1,18 @@
 ﻿using UnityEngine;
 using UnityEditor;
-using System.Collections;
+using System.Reflection;
 
-[CustomEditor(typeof(Path))]
+[CustomEditor(typeof(Path), true)]
 public class PathEditor : Editor
 {
-	
+
+	[MenuItem("GameObject/New Path", false, 1)]
+	public static void MakeNewPathGameObject()
+	{
+		GameObject GO = new GameObject("Path");
+		GO.AddComponent<Path>();
+	}
+
 	private Path path;
 
 	private SerializedProperty nodesArrayProp;
@@ -20,10 +27,10 @@ public class PathEditor : Editor
 		{
 			nodesArrayProp.arraySize = 4;
 
-			nodesArrayProp.GetArrayElementAtIndex(0).FindPropertyRelative("position").vector3Value = new Vector3(0f, 0f, 1f);
-			nodesArrayProp.GetArrayElementAtIndex(1).FindPropertyRelative("position").vector3Value = new Vector3(1f, 0f, 2f);
-			nodesArrayProp.GetArrayElementAtIndex(2).FindPropertyRelative("position").vector3Value = new Vector3(-1f, 0f, 4f);
-			nodesArrayProp.GetArrayElementAtIndex(3).FindPropertyRelative("position").vector3Value = new Vector3(0f, 0f, 5f);
+			nodesArrayProp.GetArrayElementAtIndex(0).FindPropertyRelative("position").vector3Value = new Vector3(0f, 1f, 0f);
+			nodesArrayProp.GetArrayElementAtIndex(1).FindPropertyRelative("position").vector3Value = new Vector3(1f, 2f, 0f);
+			nodesArrayProp.GetArrayElementAtIndex(2).FindPropertyRelative("position").vector3Value = new Vector3(-1f, 4f, 0f);
+			nodesArrayProp.GetArrayElementAtIndex(3).FindPropertyRelative("position").vector3Value = new Vector3(0f, 5f, 0f);
 
 			serializedObject.ApplyModifiedProperties();
 		}
@@ -76,8 +83,16 @@ public class PathEditor : Editor
 			SerializedProperty posProp = nodeProp.FindPropertyRelative("position");
 
 			Vector3 worldPos = path.transform.TransformPoint(posProp.vector3Value);
-			worldPos = Handles.PositionHandle(worldPos, Quaternion.identity);
-			posProp.vector3Value = path.transform.InverseTransformPoint(worldPos);
+			Vector3 newWorldPos = Handles.PositionHandle(worldPos, Quaternion.identity);
+			if(newWorldPos != worldPos)
+			{
+				//It moved, revalidate the path
+
+				//Use reflection to call Validate
+				typeof(Path).GetMethod("Validate", BindingFlags.NonPublic | BindingFlags.Instance).Invoke(path, null);
+			}
+
+			posProp.vector3Value = path.transform.InverseTransformPoint(newWorldPos);
 		}
 
 		serializedObject.ApplyModifiedProperties();

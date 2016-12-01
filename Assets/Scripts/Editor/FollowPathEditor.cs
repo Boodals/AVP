@@ -2,7 +2,7 @@
 using UnityEditor;
 using System.Collections;
 
-[CustomEditor(typeof(FollowPath))]
+[CustomEditor(typeof(FollowPath), true)]
 public class FollowPathEditor : Editor
 {
 
