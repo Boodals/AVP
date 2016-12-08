@@ -4,8 +4,9 @@ using System.Collections;
 public class CityColourChange : MonoBehaviour {
 
 
-    public Material inMat;
-    private Material coreMat;
+    public Material InMatOne;
+    public Material InMatTwo;
+    private Material currentMat;
     float blendVal;
     private GameObject[] cityObjects;
     private Color baseColur;
@@ -15,9 +16,13 @@ public class CityColourChange : MonoBehaviour {
 	void Start ()
     {
         baseColur = Color.gray;
-        coreMat = Instantiate(inMat);
+        currentMat = Instantiate(InMatOne);
         cityObjects = GameObject.FindGameObjectsWithTag("CITYBUILDING");
-        blendVal = 0.0f;
+        foreach(GameObject go in cityObjects)
+        {
+            go.GetComponent<Renderer>().material = InMatOne;
+        }
+
         flip = true;
 
 	}
@@ -28,32 +33,26 @@ public class CityColourChange : MonoBehaviour {
         if(Input.GetKey(KeyCode.J))
         {
 
-            baseColur = new Color(blendVal, blendVal, blendVal);
+            baseColur = Color.Lerp(InMatOne.color, InMatTwo.color, Mathf.PingPong(Time.time, 1));
 
-        foreach(GameObject go in cityObjects)
+                if(InMatOne == InMatTwo)
             {
-                go.GetComponent<Renderer>().material.SetColor("_Color", baseColur);
+                Material HOLD;
+                HOLD = InMatOne;
+
+                InMatOne = InMatTwo;
+                InMatTwo = HOLD;
+
+
             }
-            if(flip)
-            {
-                blendVal= blendVal + 0.01f;
-                if(blendVal > 1)
-                {
-                    flip = false;
-                }
-            }
-            else
-            {
-                blendVal = blendVal - 0.01f;
-                if (blendVal < 0)
-                {
-                    flip = true;
-                }
-            }
+        }
+
+        foreach (GameObject go in cityObjects)
+        {
+            go.GetComponent<Renderer>().material.SetColor("_Color", baseColur);
         }
 
 
 
-
-	}
+    }
 }
