@@ -10,6 +10,8 @@ public class FollowPath : MonoBehaviour
 		PingPong,
 	}
 
+	public delegate void PathEventHandler();
+
 	public Path path;
 
 	public bool lockRotation = false;
@@ -22,6 +24,17 @@ public class FollowPath : MonoBehaviour
 	public RepeatMode repeatMode = RepeatMode.None;
 
 	private bool pingPongDirInv = false;
+
+	/// <summary>
+	/// Called every LateUpdate the progress along path is 0
+	/// </summary>
+	public event PathEventHandler OnStartOfPath;
+
+	/// <summary>
+	/// Called every LateUpdate the progress along path is the paths length
+	/// </summary>
+	public event PathEventHandler OnEndOfPath;
+
 
 
 	void OnValidate()
@@ -36,7 +49,18 @@ public class FollowPath : MonoBehaviour
 
 	void LateUpdate()
 	{
+		if(distOnPath <= 0f && OnStartOfPath != null)
+		{
+			OnStartOfPath();
+		}
+
 		distOnPath += speed * Time.deltaTime;
+
+		if(distOnPath >= path.length && OnEndOfPath != null)
+		{
+			OnEndOfPath();
+		}
+
 		switch(repeatMode)
 		{
 			case RepeatMode.None:
