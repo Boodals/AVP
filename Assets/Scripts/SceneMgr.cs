@@ -27,7 +27,7 @@ public class SceneMgr : MonoBehaviour
 	{
 		if(singleton != null)
 		{
-			Debug.LogError("Multiple SceneMgrs");
+			//Debug.LogError("Multiple SceneMgrs");
 			Destroy(this);
 			return;
 		}
@@ -61,7 +61,7 @@ public class SceneMgr : MonoBehaviour
 		followPath.speed = pathSpeed;
 		sceneToChangeTo = sceneName;
 
-		Debug.Log("Moving to scene " + sceneName);
+		//Debug.Log("Moving to scene " + sceneName);
 
 		followPath.OnEndOfPath += OnGetToDoor;
 
@@ -72,9 +72,9 @@ public class SceneMgr : MonoBehaviour
 		if(currentScene != "")
 		{
 			bool isUnloaded = SceneManager.UnloadScene(currentScene);
-			Debug.Log("Unloaded: " + isUnloaded);
+			//Debug.Log("Unloaded: " + isUnloaded);
 		}
-		Debug.Log("Loading scene " + sceneToChangeTo);
+		//Debug.Log("Loading scene " + sceneToChangeTo);
 		loadAsync = SceneManager.LoadSceneAsync(sceneToChangeTo, LoadSceneMode.Additive);
 
 		followPath.enabled = false;
@@ -85,7 +85,7 @@ public class SceneMgr : MonoBehaviour
 
 	private void LoadedScene()
 	{
-		Debug.Log("Done loading");
+		//Debug.Log("Done loading");
 		currentScene = sceneToChangeTo;
 
 		followPath.enabled = true;
@@ -97,7 +97,7 @@ public class SceneMgr : MonoBehaviour
 
 	private void OnGetBackFromDoor()
 	{
-		Debug.Log("Back from door");
+		//Debug.Log("Back from door");
 
 		followPath.enabled = false;
 
