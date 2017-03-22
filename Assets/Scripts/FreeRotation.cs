@@ -7,12 +7,15 @@ public class FreeRotation : MonoBehaviour
 	public float lookSpeed = 2f;
 
 	public float momentumScale = 40f;
-	public float momentumFalloff = 50f;
+	public float momentumFalloff = 0.05f;
+	public float smoothingMult = 0.5f;
 
 	public bool doLockMouse = true;
 
 	private Vector2 yawPitch;
 	private Vector2 yawPitchMomentum = new Vector2();
+
+	private Vector2 mouseSmoothing = new Vector2();
 
 	void Awake()
 	{
@@ -49,16 +52,21 @@ public class FreeRotation : MonoBehaviour
 
 		float yaw = Input.GetAxis("Mouse X") * lookSpeed;
 		float pitch = -Input.GetAxis("Mouse Y") * lookSpeed;
+
+		mouseSmoothing += new Vector2(yaw, pitch) * Time.deltaTime;
+		mouseSmoothing -= mouseSmoothing * Time.deltaTime / smoothingMult;
+		
+
+		yawPitchMomentum += mouseSmoothing * momentumScale;
+
 		//Yaw
-		yawPitch.x = Mathf.Repeat(yawPitch.x + yaw + yawPitchMomentum.x * Time.deltaTime, 360f);
+		yawPitch.x = Mathf.Repeat(yawPitch.x + yawPitchMomentum.x * Time.deltaTime, 360f);
 
 		//Pitch
-		yawPitch.y = Mathf.Clamp(yawPitch.y + pitch + yawPitchMomentum.y * Time.deltaTime, -90f, 90f);
+		yawPitch.y = Mathf.Clamp(yawPitch.y + yawPitchMomentum.y * Time.deltaTime, -90f, 90f);
 
 
-		yawPitchMomentum += new Vector2(yaw, pitch) * momentumScale;
-
-		yawPitchMomentum *= momentumFalloff * Time.deltaTime;
+		yawPitchMomentum -= yawPitchMomentum * momentumFalloff * Time.deltaTime;
     }
 
 	void LateUpdate()
