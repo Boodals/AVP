@@ -1,0 +1,9 @@
+s:/fet/csct/audiovisualproduction.../dropbox
+full hd version 1920x1080
+web version 720p
+h264 codec
+48khz sample rate
+24 bit depth
+
+blackboard: report and production diary + file path to video (pdf)
+group portfolio is url to video
